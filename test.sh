@@ -1,20 +1,24 @@
 #!/bin/bash
 
-echo "🚀 Starting Lambda-Shield Verification..."
+echo "🚀 Starting Lambda-Shield Verification via Cargo..."
 
-# 1. Compile
-echo "🔨 Compiling main and checker..."
-rustc src/main.rs -o lambda_shield
+# 1. Build the whole project using Cargo
+echo "🔨 Building project..."
+cargo build --release
+
+# 2. Compile checker separately (since it's a standalone tool)
+echo "🔨 Compiling checker..."
 rustc src/checker.rs -o checker
 
-# 2. Test Entropy
+# 3. Test Entropy
 echo "📊 Running Lemma 3 Entropy Check..."
 ./checker 123456789
 
-# 3. Test Encryption/Decryption
+# 4. Test Encryption/Decryption using the Cargo-built binary
 echo "🔒 Testing Cipher Logic..."
 SAMPLE_MSG="Bazinga! Lemma 3 test successful."
-RESULT=$(./lambda_shield --msg 123456789 "$SAMPLE_MSG")
+# Using the binary built by cargo in the target folder
+RESULT=$(./target/release/lambda-shield --msg 123456789 "$SAMPLE_MSG")
 
 if [[ "$RESULT" == *"$SAMPLE_MSG"* ]]; then
     echo "✅ Success: Decrypted message matches original!"

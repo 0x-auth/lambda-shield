@@ -9,7 +9,7 @@ repository = "https://github.com/0x-auth/lambda-shield"
 homepage = "https://github.com/0x-auth/lambda-shield"
 readme = "README.md"
 keywords = ["cryptography", "collatz", "cipher", "iot", "lightweight"]
-categories = ["cryptography", "embedded-software"]
+categories = ["cryptography", "embedded"]
 
 [dependencies]
 # No external dependencies - keeping it lightweight for IoT.
