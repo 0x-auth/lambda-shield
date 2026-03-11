@@ -4,6 +4,7 @@
 main
 checker
 lambda_shield
+keystream.bin
 
 # OS specific files
 .DS_Store
