@@ -6,38 +6,61 @@
 
 #[inline(always)]
 fn mix(x: u64) -> u64 {
-    let mut x = (x ^ (x >> 30)).wrapping_mul(0xbf58476d1ce4e5b9);
-    x = (x ^ (x >> 27)).wrapping_mul(0x94d049bb133111eb);
+    let x = (x ^ (x >> 30)).wrapping_mul(0xbf58476d1ce4e5b9);
+    let x = (x ^ (x >> 27)).wrapping_mul(0x94d049bb133111eb);
     x ^ (x >> 31)
 }
 
 fn collatz_advance(mut n: u128, steps: usize) -> u128 {
     for _ in 0..steps {
-        if n % 2 == 0 { n /= 2; }
-        else { n = n.wrapping_mul(3).wrapping_add(1); }
-        // Keep n within u128 bounds and away from 1-4-2 loop
-        if n <= 1 { n = 0xdeadbeef; }
-        if n > (u64::MAX as u128) { n = (n % u64::MAX as u128) + 7; }
+        if n % 2 == 0 { 
+            n /= 2; 
+        } else { 
+            n = n.wrapping_mul(3).wrapping_add(1); 
+        }
+        
+        // Escape the 4-2-1 loop and keep state healthy
+        if n <= 1 { 
+            n = 6; 
+        }
+        
+        // Keep n within reasonable bounds for the next byte's entropy
+        if n > (u64::MAX as u128) { 
+            n = (n % u64::MAX as u128) + 7; 
+        }
     }
     n
 }
 
 /// Symmetric process: Encrypts or Decrypts data using Lemma 3 trajectories.
+/// Parameters:
+/// - data: The byte slice to process
+/// - seed_hi: The upper 64 bits of the key
+/// - seed_lo: The lower 64 bits of the key
 pub fn lambda_shield_v2(data: &[u8], seed_hi: u64, seed_lo: u64) -> Vec<u8> {
     let mut n: u128 = ((seed_hi as u128) << 64) | (seed_lo as u128);
-    if n == 0 { n = 0xdeadbeefcafe1337; }
     
+    // Seed initialization and sanitization
+    if n == 0 { 
+        n = 0xdeadbeefcafe1337; 
+    }
+    
+    // Initial jump to decouple from linear seed values
+    n = (n % u64::MAX as u128) + 2;
+
     let mut counter: u64 = 0;
     let mut result = Vec::with_capacity(data.len());
 
     for &byte in data {
-        n = collatz_advance(n, 32); // 32 steps per byte for deep mixing
+        // Core Lemma 3 Trajectory: 32 iterations per byte
+        n = collatz_advance(n, 32);
         counter = counter.wrapping_add(1);
 
-        // Mix Collatz state with counter and high-seed entropy
-        let raw = (n as u64) ^ counter ^ seed_hi;
+        // State mixing: Combine Collatz state, counter, and key entropy
+        let raw = (n as u64) ^ counter ^ seed_hi.wrapping_add(seed_lo);
         let keystream_byte = (mix(raw) & 0xFF) as u8;
 
+        // XOR Stream Cipher Operation
         result.push(byte ^ keystream_byte);
     }
     result
