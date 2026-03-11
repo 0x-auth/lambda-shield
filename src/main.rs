@@ -1,28 +1,41 @@
 use std::env;
-use lambda_shield::lambda_shield_v2;
+use std::fs;
+use lambda_shield::{lambda_process, lambda_keystream};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    // Expected: executable, mode, seed_hi, seed_lo, message (total 5)
-    if args.len() < 5 {
-        println!("Usage: ./lambda_shield --msg <seed_hi> <seed_lo> \"message\"");
+    if args.len() < 4 {
+        println!("Usage:");
+        println!("  --msg  <hi> <lo> \"text\"");
+        println!("  --file <hi> <lo> <path>");
+        println!("  --nist <hi> <lo>");
         return;
     }
 
     let mode = &args[1];
-    let seed_hi: u64 = args[2].parse().unwrap_or(0);
-    let seed_lo: u64 = args[3].parse().unwrap_or(0);
-    let data_str = &args[4];
+    let hi: u64 = args[2].parse().expect("Invalid seed_hi");
+    let lo: u64 = args[3].parse().expect("Invalid seed_lo");
 
-    if mode == "--msg" {
-        let raw_data = data_str.as_bytes();
-        let encrypted = lambda_shield_v2(raw_data, seed_hi, seed_lo);
-        
-        println!("--- Lambda Shield v2 Output ---");
-        println!("Original:  {}", data_str);
-        println!("Hex:       {:02x?}", encrypted);
-        
-        let decrypted = lambda_shield_v2(&encrypted, seed_hi, seed_lo);
-        println!("Decrypted: {}", String::from_utf8_lossy(&decrypted));
+    match mode.as_str() {
+        "--msg" => {
+            let msg = args.get(4).expect("Missing message").as_bytes();
+            let enc = lambda_process(msg, hi, lo);
+            println!("Hex: {:02x?}", enc);
+            let dec = lambda_process(&enc, hi, lo);
+            println!("Dec: {}", String::from_utf8_lossy(&dec));
+        }
+        "--file" => {
+            let path = args.get(4).expect("Missing path");
+            let data = fs::read(path).expect("Read failed");
+            let enc = lambda_process(&data, hi, lo);
+            fs::write(format!("{}.lambda", path), &enc).unwrap();
+            println!("Processed {} bytes to {}.lambda", data.len(), path);
+        }
+        "--nist" => {
+            let ks = lambda_keystream(1_000_000, hi, lo);
+            fs::write("keystream.bin", &ks).unwrap();
+            println!("Generated 1MB keystream.bin for NIST testing.");
+        }
+        _ => println!("Unknown mode"),
     }
 }
