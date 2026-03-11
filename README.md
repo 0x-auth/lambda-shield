@@ -1,48 +1,26 @@
-# Lambda-Shield: Collatz-Based Stream Cipher
+# 🛡️ Lambda-Shield v2: The Collatz Stream Cipher
 
-Lambda-Shield is a lightweight cryptographic primitive built on the **Lemma 3 Residue Class Discovery**. It uses the deterministic chaos of the 3n+1 (Collatz) trajectory to generate high-entropy keystreams.
+Lambda-Shield is a high-speed, lightweight stream cipher leveraging the deterministic chaos of the **Collatz (3n+1) Trajectory**. 
 
-## Positioning & AES Comparison
-**Is this better than AES?**
-- **In Security:** No. AES is the global standard with decades of peer-reviewed cryptanalysis.
-- **In Joules/Energy Efficiency:** **Yes.** Lambda-Shield is designed for **Edge-Security**. Where a standard AES implementation might be too "heavy" for a tiny sensor or a battery-powered medical implant, Lambda-Shield provides a "Security-for-Energy" trade-off.
+## 🥊 The Competitor: ChaCha20
+While **ChaCha20** is the industry standard for software-defined encryption, it requires maintaining a 512-bit state (16 x 32-bit words) and performing multiple "Quarter Round" operations involving constant arrays.
 
-## Why use Lambda-Shield?
-1. **Low Compute Cost:** Uses only bit-shifting and integer addition. No S-Boxes or Matrix Multiplication.
-2. **Deterministic Chaos:** Based on the Collatz Conjecture—one of the oldest unsolved problems in mathematics.
-3. **Algebraic Insurance:** Lemma 3 proves that bit-residues exhibit a correlation of $\rho \approx 0.0006$, providing high-quality diffusion.
+**Lambda-Shield v2 Advantages for IoT:**
+- **Zero Constants:** No "expand 32-byte k" strings or magic tables.
+- **Minimal State:** Operates on a single `u128` state.
+- **Energy Efficiency:** Purely Arithmetic (Add, Shift, XOR, Multi). Perfect for saving Joules on button-cell powered sensors.
 
 
-## Verify Entropy
-```bash 
-rustc src/checker.rs
-./checker <seed>
-```
 
-## Installation & Usage
-Ensure you have Rust installed.
+## 🛠️ v2 Specifications
+- **Keyspace:** 128-bit (seed_hi + seed_lo).
+- **Mixing:** 32 Collatz steps per byte + Murmur3-style output conditioning.
+- **Symmetry:** XOR-based stream cipher (Encryption == Decryption).
 
+## 🚀 Usage
 ```bash
 cargo build --release
+./target/release/lambda-shield --msg 12345 67890 "Your Secret Message"
+
 ```
-
-## Encryption and Decryption are symmetric using the same seed
-```bash
-./target/release/lambda_shield --msg 123456789 "Bazinga! Lemma 3 is live."
-
-./target/release/lambda_shield --file 987654321 config.json
-```
-
-## Scientific Foundation: 
-Lemma 3The core of this cipher is the trajectory of $n \rightarrow 3n+1$. Our research into Lemma 3 shows that while the trajectory eventually reaches 1, the residue path taken to get there is computationally irreducible.
-
-##  Ideal Use Cases
-	- IoT Sensors: Encrypting temperature/vibration data on button-cell batteries.
-
-	- Medical Implants: Low-heat encryption for pacemakers or neural links.
-
-	- Drone Telemetry: Fast, low-latency scrambling of flight coordinates.
-
-
-Created with ❤️ by Lambda Quantum.
 
