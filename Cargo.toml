@@ -1,0 +1,10 @@
+[package]
+name = "lambda-shield"
+version = "0.1.0"
+edition = "2021"
+authors = ["Lambda Quantum"]
+description = "A lightweight Collatz-based stream cipher for energy-constrained devices."
+
+[dependencies]
+# No external crates needed for the core logic! 
+# This keeps the binary tiny for IoT.
