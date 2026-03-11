@@ -3,8 +3,13 @@ name = "lambda-shield"
 version = "0.1.0"
 edition = "2021"
 authors = ["Lambda Quantum"]
-description = "A lightweight Collatz-based stream cipher for energy-constrained devices."
+description = "A lightweight, energy-efficient stream cipher based on the Collatz Lemma 3 residue discovery."
+license = "MIT"
+repository = "https://github.com/0x-auth/lambda-shield"
+homepage = "https://github.com/0x-auth/lambda-shield"
+readme = "README.md"
+keywords = ["cryptography", "collatz", "cipher", "iot", "lightweight"]
+categories = ["cryptography", "embedded-software"]
 
 [dependencies]
-# No external crates needed for the core logic! 
-# This keeps the binary tiny for IoT.
+# No external dependencies - keeping it lightweight for IoT.
