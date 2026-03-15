@@ -1,6 +1,6 @@
 [package]
 name = "lambda-shield"
-version = "0.5.0"
+version = "0.6.0"
 edition = "2021"
 authors = ["Lambda Quantum"]
 description = "A lightweight, energy-efficient stream cipher based on the Collatz Lemma 3 residue discovery."
