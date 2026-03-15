@@ -1,20 +1,5 @@
-# Rust binaries and build artifacts
-/target/
-**/*.rs.bk
-main
-checker
-lambda_shield
-keystream.bin
-
-# OS specific files
+target/
+Cargo.lock
+**/*.lambda
+*.bin
 .DS_Store
-Thumbs.db
-
-# Executables
-*.exe
-*.so
-*.dylib
-*.dll
-
-# Lambda Shield specific processed files
-*.lambda
